@@ -134,3 +134,14 @@ Ein Muster wird nach einem standardisierten Schema dokumentiert, um die Kommunik
         }
     }
     ```
+
+## Aufgabe 3: Architektur-Fundament
+
+Bevor die Entwurfsmuster implementiert werden, wurde die grundlegende Domäne des Währungsrechners definiert. Ziel dieses Schrittes ist die Herstellung der Typsicherheit und die Definition der Verträge (Interfaces).
+
+### Struktur
+1. **IUmrechnen (Interface):** Das funktionale Herzstück. Es legt fest, dass jeder Rechner umrechnen kann, einen Faktor besitzt und seine eigene Zuständigkeit prüfen muss.
+2. **ISammelumrechnung (Interface):** Eine Erweiterung für die Stapelverarbeitung, die eine Trennung der Verantwortlichkeiten (Separation of Concerns) zwischen Einzel- und Massenberechnung ermöglicht.
+3. **WR (Abstrakte Klasse):** Dient als Basistyp. In diesem Stadium ist sie rein abstrakt und erzwingt lediglich, dass alle zukünftigen Rechner die `IUmrechnen`-Schnittstelle bedienen.
+
+
