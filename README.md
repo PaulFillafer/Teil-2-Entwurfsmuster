@@ -209,3 +209,19 @@ Die Umsetzung erfolgte über eine formale Decorator-Hierarchie, die eine flexibl
 * **Komposition statt Vererbung**: Funktionalitäten werden nicht durch immer neue Unterklassen, sondern durch das "Einpacken" von Objekten (Zwiebelschalen-Prinzip) kombiniert.
 * **Schichtbarkeit**: Die Decoratoren rufen `super.umrechnen()` auf, wodurch zuerst der korrekte Wechselkurs aus der Kette ermittelt wird, bevor die jeweilige Gebühr angewendet wird.
 
+# Aufgabe 7: Builder (Erzeugungsmuster)
+
+## Umsetzung nach dem "Bloch-Prinzip"
+Inspiriert durch Joshua Blochs Konzepte in *Effective Java* (wie im DZone-Artikel von Riaan Nel beschrieben), wurde ein `WRBuilder` implementiert. Dieser adressiert die Problematik unübersichtlicher Konstruktoren und fehleranfälliger manueller Objekt-Verschachtelungen.
+
+### Gelöste Probleme:
+1. **Vermeidung von Fehlkonfigurationen**: Der Builder verhindert, dass Decoratoren und Ketten-Glieder in einer architektonisch unsinnigen Reihenfolge instanziiert werden. Er stellt sicher, dass die "Zwiebel-Struktur" stets korrekt um den Kern (die Chain) aufgebaut wird.
+2. **Fluent Interface**: Durch Methoden, die die eigene Builder-Instanz zurückgeben (`return this`), wird ein "Method-Chaining" ermöglicht. Dies führt zu einer selbsterklärenden API, die die Lesbarkeit des Erzeugungscodes maximiert und die "Verbosity" reduziert.
+3. **Kapselung der Schachtelungslogik**: Die Entscheidungshoheit darüber, welcher Decorator welche Komponente umschließt (z.B. die Priorisierung von Fixgebühren gegenüber prozentualen Aufschlägen), liegt zentral in der `build()`-Methode.
+
+### Implementierungsdetails
+* **Zustandsverwaltung**: Der Builder fungiert als temporärer Speicher für die Komponenten der `WR`-Kette sowie für die Konfigurationsparameter (Flags) der gewünschten Gebührenmodelle.
+* **Zweistufiger Aufbau**:
+    * *Konfigurationsphase*: Sammeln der Chain-Glieder und Gebührenoptionen.
+    * *Instanziierungsphase*: Erst beim Aufruf von `.build()` werden die tatsächlichen Decorator-Instanzen erzeugt und geschachtelt.
+* **Typsicherheit und Validierung**: Der Builder stellt sicher, dass nur valide Konfigurationen (z.B. eine nicht-leere Kette) in ein funktionsfähiges `IUmrechnen`-Objekt überführt werden.
