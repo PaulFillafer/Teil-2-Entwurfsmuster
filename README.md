@@ -184,3 +184,28 @@ Der Kern ist das Zusammenspiel zwischen einer **finalen Methode** (der Schablone
 
 ### Vorteil dieser Architektur
 Würde man dieses Muster nicht nutzen, müsste jeder neue Rechner (z.B. `EuroToPfund`) die gesamte Logik der `if-else`-Kette und die Fehlerbehandlung selbst kopieren. Durch die Template Method ist dieser Ablauf zentralisiert und wartungsfreundlich.
+
+# Aufgabe 6: Decorator (Strukturmuster)
+
+## Lernziel
+Das Ziel dieser Aufgabe war die Erweiterung des Systems um eine Gebührenlogik, ohne die bestehenden Klassen der Umrechnungskette (`EUR2Dollar`, `EUR2YEN`) zu modifizieren (**Open-Closed Principle**).
+
+## Architektur & Umsetzung
+Die Umsetzung erfolgte über eine formale Decorator-Hierarchie, die eine flexible und transparente Erweiterung der Funktionalität ermöglicht:
+
+1. **Abstrakter Decorator (`WRDecorator`)**:
+    * Erbt von der Basisklasse `WR` und implementiert das Interface `IUmrechnen`.
+    * Hält eine Referenz auf das zu dekorierende Objekt (`geschmueckterRechner`).
+    * Implementiert **transparente Weiterleitungen** für alle Methoden des Interfaces (`zustaendig()`, `getFaktor()`, `umrechnen()`).
+
+2. **Konkrete Decoratoren**:
+    * **`ProzentGebuehrDecorator`**: Überschreibt die `umrechnen`-Methode, um einen Aufschlag von **0,5 %** auf alle Währungen außer Yen zu berechnen.
+    * **`YenFixGebuehrDecorator`**: Überschreibt die `umrechnen`-Methode, um einen fixen Aufschlag von **5,00 Einheiten** speziell für Yen-Transaktionen zu addieren.
+
+
+
+## Besonderheiten der Implementierung
+* **Zuständigkeits-Delegation**: Durch die Anpassung in der Basisklasse `WR` (rekursive `zustaendig`-Prüfung) kann ein Decorator die Anfrage korrekt in das Innere der Kette weiterreichen.
+* **Komposition statt Vererbung**: Funktionalitäten werden nicht durch immer neue Unterklassen, sondern durch das "Einpacken" von Objekten (Zwiebelschalen-Prinzip) kombiniert.
+* **Schichtbarkeit**: Die Decoratoren rufen `super.umrechnen()` auf, wodurch zuerst der korrekte Wechselkurs aus der Kette ermittelt wird, bevor die jeweilige Gebühr angewendet wird.
+
