@@ -144,4 +144,23 @@ Bevor die Entwurfsmuster implementiert werden, wurde die grundlegende Domäne de
 2. **ISammelumrechnung (Interface):** Eine Erweiterung für die Stapelverarbeitung, die eine Trennung der Verantwortlichkeiten (Separation of Concerns) zwischen Einzel- und Massenberechnung ermöglicht.
 3. **WR (Abstrakte Klasse):** Dient als Basistyp. In diesem Stadium ist sie rein abstrakt und erzwingt lediglich, dass alle zukünftigen Rechner die `IUmrechnen`-Schnittstelle bedienen.
 
+## Aufgabe 4: Chain of Responsibility (Verantwortlichkeitskette)
 
+### 1. Architektur & Klassen
+* **`WR` (Abstrakter Handler):** Definiert das Grundgerüst für die Kette und implementiert die zentrale Weiterleitungslogik.
+* **`EUR2Dollar` & `EUR2YEN` (Konkrete Handler):** Implementieren die spezifische Umrechnungslogik für ihre jeweilige Währungsvariante.
+
+### 2. Erfüllung der funktionalen Anforderungen
+* **Zuständigkeitsprüfung:** Jeder Handler prüft über die Methode `zustaendig(String variante)`, ob er die Anfrage selbst bearbeiten kann.
+* **Delegation (Der Kern):** Ist ein Glied nicht zuständig, wird die Anfrage über `next.umrechnen(...)` an den Nachfolger delegiert.
+* **Dynamische Kettenverwaltung:** * **Aufnahme:** Die Methode `add(WR neuerRechner)` durchläuft die Kette rekursiv bis zum Ende (`next == null`), um ein neues Element anzuhängen.
+    * **Löschen:** Die Methode `removeLast()` sucht rekursiv das vorletzte Glied, um dessen Verbindung zum letzten Glied zu kappen.
+
+
+
+### 3. Lern-Check: Identifikation des Musters
+Der **zentrale Kern** dieses Musters lässt sich im Code an zwei Merkmalen sofort identifizieren:
+1. **Struktur (Selbstähnlichkeit):** Die Klasse besitzt eine Referenz auf den eigenen Typ (`protected WR next`). Dies ermöglicht eine beliebig lange Verkettung von Objekten.
+2. **Verhalten (Delegation):** Die Methode `umrechnen` implementiert eine "Entweder-Oder"-Logik: Entweder der aktuelle Handler bearbeitet die Anfrage selbst, oder er reicht sie an das nächste Glied weiter.
+
+> **Wichtig für die Praxis:** Um einen Endlos-Loop oder einen "Silent Failure" zu verhindern, bricht die Kette ab, sobald `next == null` erreicht ist. In diesem Fall wird eine `IllegalArgumentException` geworfen, was dem Client signalisiert, dass kein passender Rechner existiert.
