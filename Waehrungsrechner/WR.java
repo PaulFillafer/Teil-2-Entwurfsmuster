@@ -11,6 +11,9 @@ public abstract class WR implements IUmrechnen {
         throw new IllegalArgumentException("Kein Rechner für " + variante + " gefunden.");
     }
 
+    public abstract boolean zustaendig(String variante);
+    public abstract double getFaktor();
+
 
     public void add(WR neuerRechner) {
         if (this.next == null) {

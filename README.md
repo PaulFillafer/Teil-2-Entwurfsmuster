@@ -164,3 +164,23 @@ Der **zentrale Kern** dieses Musters lässt sich im Code an zwei Merkmalen sofor
 2. **Verhalten (Delegation):** Die Methode `umrechnen` implementiert eine "Entweder-Oder"-Logik: Entweder der aktuelle Handler bearbeitet die Anfrage selbst, oder er reicht sie an das nächste Glied weiter.
 
 > **Wichtig für die Praxis:** Um einen Endlos-Loop oder einen "Silent Failure" zu verhindern, bricht die Kette ab, sobald `next == null` erreicht ist. In diesem Fall wird eine `IllegalArgumentException` geworfen, was dem Client signalisiert, dass kein passender Rechner existiert.
+
+## Aufgabe 5: Template Method (Schablonenmethode)
+
+### Lernziel
+Das Ziel der **Template Method** ist es, das Grundgerüst eines Algorithmus festzulegen und einzelne Schritte an Unterklassen zu delegieren. Dies verhindert Code-Duplizierung und sorgt für einen stabilen Prozessablauf.
+
+### Umsetzung im Projekt
+In der Klasse `WR` fungiert die Methode `umrechnen()` als Schablone. Sie definiert exakt drei Phasen:
+1. **Validierung:** Aufruf der abstrakten Methode `zustaendig()`.
+2. **Berechnung:** Aufruf der abstrakten Methode `getFaktor()`.
+3. **Delegation:** Weitergabe an `next`, falls die Validierung fehlschlägt.
+
+### Der "zentrale Kern" im Code
+Der Kern ist das Zusammenspiel zwischen einer **finalen Methode** (der Schablone) und **abstrakten Methoden** (den Hooks) in derselben Klasse:
+
+* **Schablone:** `public final double umrechnen(...)` – Garantiert, dass die Ketten-Logik nicht überschrieben werden kann.
+* **Hooks:** `zustaendig()` und `getFaktor()` – Müssen von konkreten Rechnern implementiert werden.
+
+### Vorteil dieser Architektur
+Würde man dieses Muster nicht nutzen, müsste jeder neue Rechner (z.B. `EuroToPfund`) die gesamte Logik der `if-else`-Kette und die Fehlerbehandlung selbst kopieren. Durch die Template Method ist dieser Ablauf zentralisiert und wartungsfreundlich.
