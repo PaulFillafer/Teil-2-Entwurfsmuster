@@ -1,44 +1,60 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class WR implements IUmrechnen {
-    protected WR next;
+    private WR next;
+    // Wir machen die Liste protected, damit Decorator darauf zugreifen könnten,
+    // oder wir lassen sie private und stellen sicher, dass add sie verteilt.
+    private List<IObserver> observers = new ArrayList<>();
+
+    public void addObserver(IObserver observer) {
+        observers.add(observer);
+        // WICHTIG: Den Observer an die gesamte Kette weitergeben!
+        if (next != null) {
+            next.addObserver(observer);
+        }
+    }
 
     @Override
     public final double umrechnen(String variante, double betrag) {
-        if (istZustaendig(variante)) {
-            return betrag * getFaktor();
+        if (zustaendig(variante)) {
+            double ergebnis = betrag * getFaktor();
+            // Hier wird benachrichtigt
+            notifyObservers(betrag, "EUR", variante, ergebnis);
+            return ergebnis;
         } else if (next != null) {
+            // Die Kette geht weiter
             return next.umrechnen(variante, betrag);
         }
         throw new IllegalArgumentException("Kein Rechner für " + variante + " gefunden.");
     }
 
-    // Schablone für Zuständigkeit: Wandert durch die gesamte Kette
-    @Override
-    public final boolean zustaendig(String variante) {
-        if (istZustaendig(variante)) {
-            return true;
-        } else if (next != null) {
-            return next.zustaendig(variante);
+    protected void notifyObservers(double start, String von, String zu, double ziel) {
+        for (IObserver obs : observers) {
+            obs.update(start, von, zu, ziel);
         }
-        return false;
     }
 
-    // Hooks für die konkreten Währungen
-    protected abstract boolean istZustaendig(String variante);
+    public void add(WR next) {
+        if (this.next == null) {
+            this.next = next;
+            // Wenn wir bereits Observer haben, geben wir sie dem neuen Glied weiter
+            for (IObserver obs : this.observers) {
+                next.addObserver(obs);
+            }
+        } else {
+            this.next.add(next);
+        }
+    }
+
+    // Hook-Methoden für Unterklassen (Aufgabe 5)
     public abstract double getFaktor();
 
-    public void add(WR neuerRechner) {
-        if (this.next == null) this.next = neuerRechner;
-        else this.next.add(neuerRechner);
-    }
+    // In deinem vorherigen Fehler-Check hieß sie 'istZustaendig'
+    public abstract boolean istZustaendig(String variante);
 
-
-    public void removeLast() {
-        if (this.next == null) return;
-
-        if (this.next.next == null) {
-            this.next = null; // Letztes Glied kappen
-        } else {
-            this.next.removeLast();
-        }
+    // Die finale Weiche für die Template-Methode (Aufgabe 3)
+    public final boolean zustaendig(String variante) {
+        return istZustaendig(variante);
     }
 }

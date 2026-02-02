@@ -171,7 +171,7 @@ Der **zentrale Kern** dieses Musters lässt sich im Code an zwei Merkmalen sofor
 Das Ziel der **Template Method** ist es, das Grundgerüst eines Algorithmus festzulegen und einzelne Schritte an Unterklassen zu delegieren. Dies verhindert Code-Duplizierung und sorgt für einen stabilen Prozessablauf.
 
 ### Umsetzung im Projekt
-In der Klasse `WR` fungiert die Methode `umrechnen()` als Schablone. Sie definiert exakt drei Phasen:
+In der Klasse `WR` dient die Methode `umrechnen()` als Schablone. Sie definiert exakt drei Phasen:
 1. **Validierung:** Aufruf der abstrakten Methode `zustaendig()`.
 2. **Berechnung:** Aufruf der abstrakten Methode `getFaktor()`.
 3. **Delegation:** Weitergabe an `next`, falls die Validierung fehlschlägt.
@@ -228,7 +228,7 @@ Gemäß der Aufgabenstellung bietet der Builder zwei zentrale Stellschrauben fü
 # Aufgabe 8: Adapter (Strukturmuster)
 
 ## Umsetzung als Objekt-Adapter
-Die Klasse `WRAdapter` wurde als klassischer **Objekt-Adapter** implementiert. Er fungiert als Bindeglied (Wrapper), das eine Instanz von `IUmrechnen` umschließt und deren Funktionalität für die neue Schnittstelle nutzbar macht.
+Die Klasse `WRAdapter` wurde als klassischer **Objekt-Adapter** implementiert. Er dient als Bindeglied (Wrapper), das eine Instanz von `IUmrechnen` umschließt und deren Funktionalität für die neue Schnittstelle nutzbar macht.
 
 ### Funktionsumfang & Implementierung
 1. **Schnittstellen-Konformität**: Der Adapter implementiert die geforderte Methode `double sammelumrechnen(double[] betraege, String variante)`. Damit wird die Brücke zwischen der internen Einzelverarbeitung und der externen Array-Verarbeitung geschlagen.
@@ -236,4 +236,47 @@ Die Klasse `WRAdapter` wurde als klassischer **Objekt-Adapter** implementiert. E
 3. **Kompositions-Vorteil**: Da der Adapter gegen das Interface `IUmrechnen` arbeitet, kann er jedes Objekt adaptieren – egal ob es sich um einen einfachen Rechner, eine komplexe `Chain of Responsibility` oder ein hochgradig dekoriertes Objekt handelt.
 4. **Summenbildung**: Wie in der Methodensignatur durch den Rückgabetyp `double` vorgegeben, summiert der Adapter alle Einzelergebnisse auf und liefert den Gesamtwert zurück.
 
+# Aufgabe 9: Observer (Verhaltensmuster)
 
+## Umsetzung nach Vorgabe
+Die abstrakte Klasse `WR` dient als **Observable** (Subjekt). Damit wird sichergestellt, dass jede Komponente innerhalb der Kette oder Dekoration in der Lage ist, Beobachter zu informieren.
+
+### Details der Implementierung:
+1. **Zentrale Registrierung**: Über `addObserver()` werden Beobachter angemeldet. Dank der rekursiven Logik in der `add()`-Methode der Chain wird sichergestellt, dass neue Kettenglieder automatisch alle bereits registrierten Observer übernehmen.
+2. **Datenübermittlung**: Die `update()`-Methode des `IObserver`-Interfaces überträgt alle geforderten Informationen: Ausgangsbetrag, Ausgangswährung, Zielwährung und den berechneten Zielbetrag.
+3. **Konkrete Beobachter**:
+    * **Log-Observer**: Schreibt Transaktionsdaten mit Zeitstempel (`LocalDateTime`) in die Datei `umrechnungen.log`.
+    * **Atom-Feed-Observer**: Nutzt die **ROME-Library**, um einen standardisierten Atom-1.0-Feed in der Datei `feed.xml` zu erzeugen. Dies demonstriert die Integration professioneller Drittanbieter-Bibliotheken.
+
+## Architektur-Vorteil
+Das System ist nun vollständig erweiterbar. Neue Analyse-Tools oder Benachrichtigungsdienste können als neue Observer-Klassen hinzugefügt werden, ohne dass eine einzige Zeile Code in den bestehenden Umrechnern geändert werden muss (**Open-Closed Principle**).
+
+
+# Projektabschluss: Main.js
+
+Der finale Abschluss des Projekts demonstriert das nahtlose Zusammenspiel aller neun Aufgaben innerhalb der `Main.java`. Hierbei wird deutlich, wie die Kombination verschiedener Entwurfsmuster eine hochflexible und wartbare Architektur schafft.
+
+## Ablauf der Gesamtvalidierung
+
+Die `Main`-Klasse führt einen vollständigen Systemtest durch, der folgende Phasen durchläuft:
+
+### 1. Konfiguration und Erzeugung (Builder & Chain)
+Mithilfe des **WRBuilder** (Aufgabe 7) wird die **Chain of Responsibility** (Aufgabe 4) instanziiert. Der Builder kapselt die Komplexität der Objekterzeugung, setzt die Umrechnungsfaktoren und verknüpft die einzelnen Glieder der Kette (`EUR2USD` -> `EUR2YEN`).
+
+### 2. Registrierung der Beobachter (Observer)
+Bevor Transaktionen stattfinden, werden der `LogObserver` und der `AtomFeedObserver` (Aufgabe 9) registriert. Durch die Implementierung des Observable-Verhaltens in der Basisklasse `WR` wird sichergestellt, dass jeder zuständige Rechner in der Kette seine Beobachter kennt und informiert.
+
+### 3. Dynamische Funktionserweiterung (Decorator)
+Die bestehende Kette wird transparent mit **Decorator**-Schichten (Aufgabe 6) umschlossen. Dadurch werden Gebührenmodelle (prozentual und fix) hinzugefügt, ohne die Logik der ursprünglichen Währungsrechner zu verändern.
+
+### 4. Schnittstellen-Anpassung (Adapter)
+Für externe Batch-Anforderungen wird das Gesamtsystem in den **WRAdapter** (Aufgabe 8) integriert. Dieser übersetzt Einzelanfragen in Sammelumrechnungen für Arrays, wobei die Decorator-Logik und die Observer-Benachrichtigungen vollständig erhalten bleiben.
+
+
+
+## Validierung der Ergebnisse
+
+Der erfolgreiche Durchlauf der `Main` (Exit Code 0) bestätigt:
+* **Mathematische Präzision**: Die Kombination aus Basiskursen und dekorierten Gebühren liefert korrekte Ergebnisse.
+* **Protokollierung**: Die Datei `umrechnungen.log` enthält alle Transaktionsdetails mit Zeitstempel.
+* **Standard-Interoperabilität**: Die Datei `feed.xml` wurde mittels der **ROME-Library** erfolgreich als valider Atom-Feed generiert.
