@@ -209,3 +209,18 @@ Die Umsetzung erfolgte über eine formale Decorator-Hierarchie, die eine flexibl
 * **Komposition statt Vererbung**: Funktionalitäten werden nicht durch immer neue Unterklassen, sondern durch das "Einpacken" von Objekten (Zwiebelschalen-Prinzip) kombiniert.
 * **Schichtbarkeit**: Die Decoratoren rufen `super.umrechnen()` auf, wodurch zuerst der korrekte Wechselkurs aus der Kette ermittelt wird, bevor die jeweilige Gebühr angewendet wird.
 
+# Aufgabe 7: Builder (Erzeugungsmuster)
+
+## Umsetzung nach dem "Bloch-Prinzip"
+Inspiriert durch Joshua Blochs Konzepte in *Effective Java* wurde ein `WRBuilder` implementiert. Dieser löst die Problematik unübersichtlicher Objekt-Instanziierungen und stellt sicher, dass die Konfiguration eines Währungsrechners strikt von seiner Struktur-Logik getrennt bleibt.
+
+### Erfüllung der spezifischen Anforderungen
+Gemäß der Aufgabenstellung bietet der Builder zwei zentrale Stellschrauben für die Konfiguration, um die Komplexität der Objekterzeugung zu kapseln:
+
+1. **Setzen des Umrechnungsfaktors**: Über die Methode `mitFaktor(variante, faktor)` werden die Werte injiziert, die das spätere Produkt (`StandardWR`) über seine Hook-Methoden an die Template-Methode der Basisklasse liefert.
+2. **Setzen des nächsten Kettenglieds**: Über `setNext(WR next)` wird die hierarchische Struktur der *Chain of Responsibility* direkt während des Bauprozesses definiert.
+
+### Architekturvorteile
+* **Typsicherheit und Validierung**: Der Builder garantiert, dass nur valide, vollständig konfigurierte Instanzen von `StandardWR` erzeugt werden, bevor sie in das System integriert werden.
+* **Fluent Interface**: Das Rückgabe-Schema (`return this`) ermöglicht ein intuitives "Method-Chaining". Dies erhöht die Lesbarkeit im Client-Code massiv, da der Aufbau der Kette fast wie ein natürlicher Satz gelesen werden kann.
+* **Kapselung der Struktur**: Die interne Verknüpfung (Delegation an die `add()`-Logik der Chain) bleibt vor dem Client verborgen. Er definiert lediglich die gewünschten Parameter und erhält ein einsatzbereites, verkettetes Objekt zurück.
