@@ -224,3 +224,16 @@ Gemäß der Aufgabenstellung bietet der Builder zwei zentrale Stellschrauben fü
 * **Typsicherheit und Validierung**: Der Builder garantiert, dass nur valide, vollständig konfigurierte Instanzen von `StandardWR` erzeugt werden, bevor sie in das System integriert werden.
 * **Fluent Interface**: Das Rückgabe-Schema (`return this`) ermöglicht ein intuitives "Method-Chaining". Dies erhöht die Lesbarkeit im Client-Code massiv, da der Aufbau der Kette fast wie ein natürlicher Satz gelesen werden kann.
 * **Kapselung der Struktur**: Die interne Verknüpfung (Delegation an die `add()`-Logik der Chain) bleibt vor dem Client verborgen. Er definiert lediglich die gewünschten Parameter und erhält ein einsatzbereites, verkettetes Objekt zurück.
+
+# Aufgabe 8: Adapter (Strukturmuster)
+
+## Umsetzung als Objekt-Adapter
+Die Klasse `WRAdapter` wurde als klassischer **Objekt-Adapter** implementiert. Er fungiert als Bindeglied (Wrapper), das eine Instanz von `IUmrechnen` umschließt und deren Funktionalität für die neue Schnittstelle nutzbar macht.
+
+### Funktionsumfang & Implementierung
+1. **Schnittstellen-Konformität**: Der Adapter implementiert die geforderte Methode `double sammelumrechnen(double[] betraege, String variante)`. Damit wird die Brücke zwischen der internen Einzelverarbeitung und der externen Array-Verarbeitung geschlagen.
+2. **Delegations-Prinzip**: Anstatt die Umrechnungslogik zu duplizieren, iteriert der Adapter über das übergebene Array und delegiert jeden einzelnen Aufruf an die `umrechnen()`-Methode des adaptierten Objekts.
+3. **Kompositions-Vorteil**: Da der Adapter gegen das Interface `IUmrechnen` arbeitet, kann er jedes Objekt adaptieren – egal ob es sich um einen einfachen Rechner, eine komplexe `Chain of Responsibility` oder ein hochgradig dekoriertes Objekt handelt.
+4. **Summenbildung**: Wie in der Methodensignatur durch den Rückgabetyp `double` vorgegeben, summiert der Adapter alle Einzelergebnisse auf und liefert den Gesamtwert zurück.
+
+
